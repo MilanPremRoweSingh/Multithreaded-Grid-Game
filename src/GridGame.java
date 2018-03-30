@@ -1,7 +1,7 @@
 
+import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class GridGame
@@ -9,6 +9,7 @@ public class GridGame
 	static AtomicInteger count = new AtomicInteger( 0 );
 	public static boolean[][] grid = null;
 	public static int n,p,r,k;
+	public static Character[] characters;
 	
     public static void main(String[] args)  
     {
@@ -53,7 +54,18 @@ public class GridGame
     	ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newFixedThreadPool( 2 );
     	
     	Character test0 = new Character( 0 , 0, 1 );
-    	test0.enqueueMovesToNewTarget();
+    	while( true )
+    	{
+    		test0.move();
+    		
+    		System.out.println( "(" + test0.x + ", " + test0.y + ")" );
+    		
+    		
+    		if( test0.x < 0 || test0.x > 29 )
+    			System.out.println( "X Error " );
+    		if( test0.y < 0 || test0.y > 29 )
+    			System.out.println( "X Error " );
+    	}
     	
     	/*
     	long time = System.currentTimeMillis();
@@ -76,10 +88,19 @@ public class GridGame
     	System.out.println( locCount ); //TEST
     	*/
         
-        GameWindow window = new GameWindow( grid, 780, 780 );
+        //GameWindow window = new GameWindow( grid, 780, 780 );
     	
     }
-
+    
+    public static <T> T fastRemove( int idx, ArrayList<T> array )
+	{
+		T temp = array.get( idx );
+		
+		array.set( idx, array.get( array.size() - 1 ) );
+		array.remove( array.size() - 1 );
+		
+		return temp;
+	}
    
 
 
