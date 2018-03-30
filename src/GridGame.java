@@ -38,38 +38,43 @@ public class GridGame
 			return;
 		}
 
-    	ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newFixedThreadPool( 2 );
-    	
-    	long time = System.currentTimeMillis();
-    	int locCount = 0;
-    	
-    	while( System.currentTimeMillis() - time < 100l )
-    	{
-    		pool.submit( () -> {
-    			System.out.println( "Execution: " + count.getAndIncrement() );
-    		});
-    		locCount++;
-    	}
-    	
-    	try {
-			pool.awaitTermination( 100, TimeUnit.SECONDS );
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    	System.out.println( locCount );
-    	
         grid = new boolean[30][];
         for( int i = 0; i < grid.length; i++ )
         	grid[i] = new boolean[30];
     	
-        grid[0][0] 	= true;
+        grid[0][0] 	= true; //TEST
         grid[0][2] 	= true;
         grid[1][2] 	= true;
         grid[23][4] = true; 
         grid[8][1] 	= true;
         grid[9][21] = true;
         grid[29][29] = true;
+    	
+    	ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newFixedThreadPool( 2 );
+    	
+    	Character test0 = new Character( 0 , 0, 1 );
+    	test0.enqueueMovesToNewTarget();
+    	
+    	/*
+    	long time = System.currentTimeMillis();
+    	int locCount = 0;
+    	
+    	while( System.currentTimeMillis() - time < 100l ) //Game loop 
+    	{
+    		pool.submit( () -> {
+    			System.out.println( "Execution: " + count.getAndIncrement() );
+    		}); //TEST
+    		locCount++;
+    	}
+    	
+    	try {
+			pool.awaitTermination( 120, TimeUnit.SECONDS ); //Join Threads
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	System.out.println( locCount ); //TEST
+    	*/
         
         GameWindow window = new GameWindow( grid, 780, 780 );
     	
