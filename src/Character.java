@@ -19,6 +19,7 @@ public class Character
 	
 	public void enqueueMovesToNewTarget()
 	{
+		movesToTarget.clear();
 		int moveIdx = ThreadLocalRandom.current().nextInt(4); //Generate one move to ensure some movement is attempted
 		movesToTarget.add( MoveDirection.values()[ moveIdx ] );
 		
@@ -43,22 +44,77 @@ public class Character
 				move();
 				return;
 			}
-			
+			boolean genNewQueue = false;
 			switch( move )
 			{
 				case N:
-					y += 1;
+					synchronized( GridGame.grid[x][y] )
+					{
+						synchronized( GridGame.grid[x][y+1] )
+						{
+							if( !GridGame.grid[x][y+1].isBlocked() )
+							{
+								GridGame.grid[x][y].removeCharacter();
+								y += 1;
+								GridGame.grid[x][y].addCharacter( this );
+							} 
+							else
+								genNewQueue = true;
+						}
+					}
 					break;
 				case S: 
-					y -= 1;
+					synchronized( GridGame.grid[x][y-1] )
+					{
+						synchronized( GridGame.grid[x][y] )
+						{
+							if( !GridGame.grid[x][y-1].isBlocked() )
+							{
+								GridGame.grid[x][y].removeCharacter();
+								y -= 1;
+								GridGame.grid[x][y].addCharacter( this );
+							} 
+							else
+								genNewQueue = true;
+						}
+					}
 					break;
 				case E: 
-					x += 1;
+					synchronized( GridGame.grid[x][y] )
+					{
+						synchronized( GridGame.grid[x+1][y] )
+						{
+							if( !GridGame.grid[x+1][y].isBlocked() )
+							{
+								GridGame.grid[x][y].removeCharacter();
+								x += 1;
+								GridGame.grid[x][y].addCharacter( this );
+							} 
+							else
+								genNewQueue = true;
+						}
+					}
 					break;
 				case W:
-					x -= 1; 
+					synchronized( GridGame.grid[x-1][y] )
+					{
+						synchronized( GridGame.grid[x][y] )
+						{
+							if( !GridGame.grid[x-1][y].isBlocked() )
+							{
+								GridGame.grid[x][y].removeCharacter();
+								x -= 1;
+								GridGame.grid[x][y].addCharacter( this );
+							} 
+							else
+								genNewQueue = true;
+						}
+					}
 					break;
 			}
+			
+			if( genNewQueue )
+				enqueueMovesToNewTarget();
 			
 			try {
 				Thread.sleep( waitTime );

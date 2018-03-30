@@ -1,5 +1,6 @@
 
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -7,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class GridGame
 {
 	static AtomicInteger count = new AtomicInteger( 0 );
-	public static boolean[][] grid = null;
+	public static GridTile[][] grid = null;
 	public static int n,p,r,k;
 	public static Character[] characters;
 	
@@ -39,32 +40,80 @@ public class GridGame
 			return;
 		}
 
-        grid = new boolean[30][];
+        grid = new GridTile[30][];
         for( int i = 0; i < grid.length; i++ )
-        	grid[i] = new boolean[30];
-    	
-        grid[0][0] 	= true; //TEST
-        grid[0][2] 	= true;
-        grid[1][2] 	= true;
-        grid[23][4] = true; 
-        grid[8][1] 	= true;
-        grid[9][21] = true;
-        grid[29][29] = true;
+        {
+        	grid[i] = new GridTile[30];
+        	for ( int j = 0; j < grid.length; j++ )
+        		grid[i][j] = new GridTile();
+        }
     	
     	ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newFixedThreadPool( 2 );
     	
+    	Random rand = new Random();
+    	for( int i = 0; i < r; i++ )
+    	{
+    		int x = rand.nextInt(28) + 2;
+    		int y = rand.nextInt(28) + 2;
+    		
+    		if( grid[x][y].isBlocked() )
+    			i--;
+    		else
+    			grid[x][y].addObstacle();
+    	}
+    	
+    	
     	Character test0 = new Character( 0 , 0, 1 );
+    	Character test1 = new Character( 1 , 1, 1 );
     	while( true )
     	{
-    		test0.move();
+    		pool.submit( ()-> { 
+    			test0.move(); 
+        		//System.out.println( "T0: (" + test0.x + ", " + test0.y + ")" );
+        		
+        		
+        		if( test0.x < 0 || test0.x > 29 )
+        		{
+        			System.out.println( "X Error " );
+        		}
+        		if( test0.y < 0 || test0.y > 29 )
+        		{
+        			System.out.println( "X Error " );
+        		}
+
+        		//System.out.println( "T0: (" + test0.x + ", " + test0.y + ")" );
+    		} );
     		
-    		System.out.println( "(" + test0.x + ", " + test0.y + ")" );
-    		
-    		
-    		if( test0.x < 0 || test0.x > 29 )
-    			System.out.println( "X Error " );
-    		if( test0.y < 0 || test0.y > 29 )
-    			System.out.println( "X Error " );
+    		pool.submit( ()-> { 
+	    		test1.move();
+	    		
+	    		//System.out.println( "T1: (" + test1.x + ", " + test1.y + ")" );
+	    		
+	    		
+	    		if( test1.x < 0 || test1.x > 29 )
+	    		{
+	    			System.out.println( "X Error " );
+	    			
+	    		}
+	    		if( test1.y < 0 || test1.y > 29 )
+	    		{
+	    			System.out.println( "X Error " );
+	    			
+	    		}
+	    		
+	    		if( test0.x == test1.x && test0.y == test1.y )
+	    		{
+	    			System.out.println( "Character Overlap error" );
+	    			
+	    		}
+	    		
+	    		if( grid[ test0.x ][ test0.y ].isObstacle || grid[ test1.x ][ test1.y ].isObstacle  )
+	    		{
+	    			System.out.println( "Obstacle Overlap error" );
+	    			
+	    		}
+    		} );
+    			
     	}
     	
     	/*
