@@ -14,6 +14,10 @@ public class Character
 	
 	Character( int _x, int _y, long _waitTime )
 	{
+		x = _x;
+		y = _y;
+		GridGame.grid[y][x].addCharacter( this );
+		waitTime = _waitTime;
 		movesToTarget = new ArrayList<MoveDirection>( 8 );//Target is within 8 moves
 	}
 	
@@ -33,6 +37,66 @@ public class Character
 		}
 	}
 	
+	public void enqueueMovesToNewTargetFixed()
+	{
+		movesToTarget.clear();
+		boolean validTargetPicked = false;
+		
+		int rX = 0;
+		int rY = 0;
+		while( !validTargetPicked )
+		{
+			rX = ThreadLocalRandom.current().nextInt(16) - 8 + 1;
+			rY = ThreadLocalRandom.current().nextInt( (8-Math.abs( rX ))*2 ) - rX/2 +1;
+			rX += x;
+			rY += y;
+			
+			if( rX < 0 || rX > GridGame.grid.length - 1 )
+				continue;
+			
+			if( rY < 0 || rY > GridGame.grid.length - 1 )
+				continue;
+			
+			if( GridGame.grid[rX][rY].isBlocked() )
+				continue;
+			
+			validTargetPicked = true;
+		}
+		
+		while( rX != 0 && rY != 0 )
+		{
+			boolean moveRight = ThreadLocalRandom.current().nextBoolean();
+			
+			if( moveRight && rX != 0 )
+			{
+				if( rX < 0 )
+				{
+					movesToTarget.add( MoveDirection.W );
+					rX++;
+				}
+				else
+				{
+					movesToTarget.add( MoveDirection.E );
+					rX--;
+				}
+			}
+			else
+			{
+				if( rY < 0 )
+				{
+					movesToTarget.add( MoveDirection.S );
+					rY++;
+				}
+				else
+				{
+					movesToTarget.add( MoveDirection.N );
+					rY--;
+				}
+			}
+		}
+	}
+	
+
 	public void move()
 	{
 		if( movesToTarget.size() > 0 )
@@ -114,17 +178,17 @@ public class Character
 			}
 			
 			if( genNewQueue )
-				enqueueMovesToNewTarget();
+				enqueueMovesToNewTargetFixed();
 			
 			try {
 				Thread.sleep( waitTime );
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				return;
 			}
 		}
 		else
 		{
-			enqueueMovesToNewTarget();
+			enqueueMovesToNewTargetFixed();
 			move();
 		}
 		
